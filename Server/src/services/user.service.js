@@ -29,7 +29,6 @@ export const getUserById = async (id) => {
 export const getUserByEmail = async (email) => {
   return await prisma.user.findUnique({
     where: { email, isDeleted: false },
-    select: userSafeSelect,
   });
 };
 
