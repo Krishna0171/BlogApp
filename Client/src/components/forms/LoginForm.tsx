@@ -2,22 +2,22 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { LoginFormData } from "../../interfaces/interfaces";
 import { useForm } from "react-hook-form";
-import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
-import { Invalid_Email_Format, Required } from "../../constants/errorMessage";
-import api from "../../api/axios";
-import { useNavigate } from "react-router-dom";
+import { Box, Button, TextField } from "@mui/material";
+import { InvalidEmailFormat, Required } from "../../constants/ErrorMessage";
+import * as authService from "../../services/authService";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAppSnackbar } from "../../hooks/useAppSnackbar";
-import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import PasswordInput from "../inputs/PasswordInput";
+import { LoginSuccess } from "../../constants/SuccessMessages";
+import { Routes } from "../../constants/Routes";
 
 const schema = yup.object({
-  email: yup.string().email(Invalid_Email_Format).required(Required("Email")),
+  email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
   password: yup.string().required(Required("Password")),
 });
 
 const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { showError, showSuccess } = useAppSnackbar();
@@ -30,64 +30,66 @@ const LoginForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const handleTogglePassword = () => {
-    setShowPassword(prev => !prev);
-  }
-
   const loginHandler = async (data: LoginFormData) => {
-    try {
-      const response = await api.post("/auth/login", data);
-      const token = response.data.token;
+    const result = await authService.LoginUser(data);
+    console.log(result);
+    if (result.isSuccess) {
+      const token = result.Data.token;
       login(token);
-      showSuccess("Login Successfully!");
-      navigate("/dashboard");
-    } catch (error: any) {
-      showError(error.response?.data?.message);
+      showSuccess(LoginSuccess);
+      navigate(Routes.Dashboard);
+    } else {
+      showError(result.Message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(loginHandler)}>
-      <TextField
-        label="Email"
-        margin="normal"
-        fullWidth
-        {...register("email")}
-        error={!!errors.email}
-        helperText={errors.email?.message}
-      />
-      <TextField
-        label="Password"
-        fullWidth
-        margin="normal"
-        type={showPassword? "text": "password"}
-        {...register("password")}
-        error={!!errors.password}
-        helperText={errors.password?.message}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={handleTogglePassword}
-                edge="end"
-                aria-label="toggle password visibility"
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        disabled={isSubmitting}
-        fullWidth
-        sx={{ mt: 2 }}
-      >
-        {isSubmitting ? "Logging in..." : "Login"}
-      </Button>
-    </form>
+    <>
+      <form onSubmit={handleSubmit(loginHandler)}>
+        <TextField
+          label="Email"
+          margin="normal"
+          fullWidth
+          {...register("email")}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+        />
+        <PasswordInput
+          fullWidth
+          margin="normal"
+          {...register("password")}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+        />
+
+        <Box textAlign="right" mt={1}>
+          <Link
+            to={Routes.ForgotPassword}
+            className="hover:underline text-blue-500 hover:text-blue-800"
+          >
+            Forgot Password?
+          </Link>
+        </Box>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+          fullWidth
+          sx={{ mt: 2 }}
+        >
+          {isSubmitting ? "Logging in..." : "Login"}
+        </Button>
+      </form>
+      <Box textAlign="center" mt={1}>
+        Don't have an Account?
+        <Link
+          to={Routes.Register}
+          className="ms-2 hover:underline text-blue-500 hover:text-blue-800"
+        >
+          Register
+        </Link>
+      </Box>
+    </>
   );
 };
 

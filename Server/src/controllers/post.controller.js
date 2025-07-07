@@ -29,7 +29,13 @@ export const getById = async (req, res) => {
 };
 
 export const getAll = async (req, res) => {
-  const posts = await getAllPosts();
+  let { searchQuery, page, limit } = req.query;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 5;
+  searchQuery = searchQuery || "";
+  
+  console.log(page, searchQuery, limit)
+  const posts = await getAllPosts(searchQuery, page, limit);
   return res.status(200).json(posts);
 };
 

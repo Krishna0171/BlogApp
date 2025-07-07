@@ -14,9 +14,9 @@ export const register = async (req, res) => {
     throw new ApiError(400, messageConstants.InvalidInput(constants.User));
   }
 
-  const exists = await prisma.user.findUnique({ where: { email } });
+  const exists = await userService.getUserByEmail(email);
   if (exists) {
-    throw new ApiError(400, messageConstants.InvalidInput(constants.User));
+    throw new ApiError(400, messageConstants.AlreadyExist(constants.User));
   }
 
   const hashPassword = await bcrypt.hash(password, 10);

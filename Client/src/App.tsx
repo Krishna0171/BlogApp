@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/auth/Login";
 import { Box } from "@mui/material";
 import ThemeToggleButton from "./components/ThemeToggleButton";
+import AppLayout from "./components/layout/AppLayout";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -19,20 +20,18 @@ const App = () => {
         <Route
           path="/"
           element={
-            isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            isAuthenticated ? <AppLayout/> : <Navigate to="/login" />
           }
-        />
+        >
+          <Route index element={<Dashboard/>}/>
+        </Route>
         <Route
           path="/login"
-          element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />}
+          element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
         />
         <Route
           path="/register"
-          element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />}
-        />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

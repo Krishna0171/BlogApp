@@ -4,21 +4,21 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { CustomThemeProvider } from "./context/ThemeContext.tsx";
-import {  SnackbarProvider } from "notistack";
+import { SnackbarProvider } from "notistack";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <AuthProvider>
-      <CustomThemeProvider>
-        <SnackbarProvider
-          maxSnack={3}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          autoHideDuration={3000}
-          style={{opacity: 0.9}}
-        >
+    <SnackbarProvider
+      maxSnack={3}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      autoHideDuration={3000}
+      style={{ opacity: 0.9 }}
+    >
+      <AuthProvider>
+        <CustomThemeProvider>
           <App />
-        </SnackbarProvider>
-      </CustomThemeProvider>
-    </AuthProvider>
+        </CustomThemeProvider>
+      </AuthProvider>
+    </SnackbarProvider>
   </BrowserRouter>
 );
