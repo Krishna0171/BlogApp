@@ -7,10 +7,10 @@ import { InvalidEmailFormat, Required } from "../../constants/ErrorMessage";
 import * as authService from "../../services/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useAppSnackbar } from "../../hooks/useAppSnackbar";
 import PasswordInput from "../inputs/PasswordInput";
 import { LoginSuccess } from "../../constants/SuccessMessages";
-import { Routes } from "../../constants/Routes";
+import { ROUTES } from "../../constants/Routes";
+import { toast } from "react-toastify";
 
 const schema = yup.object({
   email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
@@ -20,7 +20,6 @@ const schema = yup.object({
 const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { showError, showSuccess } = useAppSnackbar();
 
   const {
     register,
@@ -32,14 +31,13 @@ const LoginForm = () => {
 
   const loginHandler = async (data: LoginFormData) => {
     const result = await authService.LoginUser(data);
-    console.log(result);
     if (result.isSuccess) {
       const token = result.Data.token;
       login(token);
-      showSuccess(LoginSuccess);
-      navigate(Routes.Dashboard);
+      toast.success(LoginSuccess);
+      navigate(ROUTES.Dashboard);
     } else {
-      showError(result.Message);
+      toast.error(result.Message);
     }
   };
 
@@ -64,7 +62,7 @@ const LoginForm = () => {
 
         <Box textAlign="right" mt={1}>
           <Link
-            to={Routes.ForgotPassword}
+            to={ROUTES.ForgotPassword}
             className="hover:underline text-blue-500 hover:text-blue-800"
           >
             Forgot Password?
@@ -83,7 +81,7 @@ const LoginForm = () => {
       <Box textAlign="center" mt={1}>
         Don't have an Account?
         <Link
-          to={Routes.Register}
+          to={ROUTES.Register}
           className="ms-2 hover:underline text-blue-500 hover:text-blue-800"
         >
           Register

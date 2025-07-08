@@ -1,13 +1,19 @@
 
-export const Routes = {
+export const ROUTES = {
     Login : '/login',
     Register: '/register',
     Dashboard: '/',
-    ForgotPassword: '/forgot-password'
+    ForgotPassword: '/forgot-password',
+    Unauthorized: '/unauthorized',
+    CreatePost: '/post/create',
+    EditPost: (id?: string) => `/post/edit/${id ?? ":id"}`
 }
 
-export const ApiRoutes = {
+export const API_ROUTES = {
     Login: '/auth/login',
     Register: '/auth/register',
-    FetchBlogs: '/posts'
+    FetchBlogs: '/posts',
+    CreatePost: '/posts',
+    GetPostById: (id: string) => `/posts/${id}`,
+    updatePost: (id: string) => `/posts/${id}`
 }

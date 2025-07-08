@@ -7,31 +7,62 @@ import Login from "./pages/auth/Login";
 import { Box } from "@mui/material";
 import ThemeToggleButton from "./components/ThemeToggleButton";
 import AppLayout from "./components/layout/AppLayout";
+import Unauthorized from "./pages/Unauthorized";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ROUTES } from "./constants/Routes";
+import { ADMIN } from "./constants/Constants";
+import AuthLayout from "./components/layout/AuthLayout";
+import CreatePost from "./pages/post/CreatePost";
+import EditPost from "./pages/post/EditPost";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
   return (
     <>
-      <Box position={"fixed"} bottom={'30px'} right={'30px'}>
-        <ThemeToggleButton/>
+      <Box position={"fixed"} bottom={"30px"} right={"30px"}>
+        <ThemeToggleButton />
       </Box>
-      
+
       <Routes>
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? <AppLayout/> : <Navigate to="/login" />
-          }
-        >
-          <Route index element={<Dashboard/>}/>
+        {/* Protected routes with layout */}
+        <Route path="/" element={<AppLayout />}>
+          <Route element={<AuthLayout />}>
+            <Route path={ROUTES.Dashboard} element={<Dashboard />} />
+            <Route
+              path={ROUTES.CreatePost}
+              element={
+                <ProtectedRoute allowedRoles={[ADMIN]}>
+                  <CreatePost />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.EditPost()}
+              element={
+                <ProtectedRoute allowedRoles={[ADMIN]}>
+                  <EditPost />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
         </Route>
         <Route
-          path="/login"
-          element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
+          path={ROUTES.Login}
+          element={
+            !isAuthenticated ? <Login /> : <Navigate to={ROUTES.Dashboard} />
+          }
         />
         <Route
-          path="/register"
-          element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
+          path={ROUTES.Register}
+          element={
+            !isAuthenticated ? <Register /> : <Navigate to={ROUTES.Dashboard} />
+          }
+        />
+        <Route
+          path={ROUTES.Unauthorized}
+          element={
+            isAuthenticated ? <Unauthorized /> : <Navigate to={ROUTES.Login} />
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

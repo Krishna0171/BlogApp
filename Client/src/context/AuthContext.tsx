@@ -1,13 +1,17 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import type { User } from "../types/auth";
-import { jwtDecode } from "jwt-decode";
-import { useAppSnackbar } from "../hooks/useAppSnackbar";
-import { LogoutSuccess } from "../constants/SuccessMessages";
+import type { User } from "../interfaces/interfaces";
+import {
+  getUserFromToken,
+  setToken,
+  removeToken,
+  isTokenValid,
+} from "../utils/jwtUtils";
 
 interface AuthContextType {
   user: User | null;
   login: (token: string) => void;
   logout: () => void;
+  loading: boolean;
   isAuthenticated: boolean;
 }
 
@@ -17,35 +21,35 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const { showSuccess } = useAppSnackbar();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const login = (token: string) => {
-    const decode: User = jwtDecode(token);
-    setUser(decode);
-    localStorage.setItem("token", token);
+    setToken(token);
+    const decode = getUserFromToken<User>();
+    if (decode) {
+      setUser(decode);
+    } else {
+      removeToken();
+    }
   };
 
   const logout = () => {
     setUser(null);
-    showSuccess(LogoutSuccess);
-    localStorage.removeItem("token");
+    removeToken();
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const deode: User = jwtDecode(token);
-        setUser(deode);
-      } catch (error) {
-        logout();
-      }
+    if (isTokenValid()) {
+      setUser(getUserFromToken<User>());
+    } else {
+      logout();
     }
+    setLoading(false);
   }, []);
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated: !!user }}
+      value={{ user, loading, login, logout, isAuthenticated: !!user }}
     >
       {children}
     </AuthContext.Provider>

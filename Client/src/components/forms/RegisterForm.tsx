@@ -12,10 +12,10 @@ import {
 } from "../../constants/ErrorMessage";
 import * as authService from "../../services/authService";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppSnackbar } from "../../hooks/useAppSnackbar";
 import { RegisterSuccess } from "../../constants/SuccessMessages";
-import { Routes } from "../../constants/Routes";
+import { ROUTES } from "../../constants/Routes";
 import PasswordInput from "../inputs/PasswordInput";
+import { toast } from "react-toastify";
 
 const schema = yup.object({
   name: yup
@@ -41,7 +41,6 @@ const schema = yup.object({
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const { showError, showSuccess } = useAppSnackbar();
 
   const {
     register,
@@ -54,10 +53,10 @@ const RegisterForm = () => {
   const registerHandler = async (data: RegisterFormData) => {
     const result = await authService.RegisterUser(data);
     if (result.isSuccess) {
-      showSuccess(RegisterSuccess);
-      navigate(Routes.Login);
+      toast.success(RegisterSuccess);
+      navigate(ROUTES.Login);
     } else {
-      showError(result.Message);
+      toast.error(result.Message);
     }
   };
 
@@ -107,7 +106,7 @@ const RegisterForm = () => {
       <Box textAlign="center" mt={1}>
         Already have an Account?
         <Link
-          to={Routes.Login}
+          to={ROUTES.Login}
           className="ms-2 hover:underline text-blue-500 hover:text-blue-800"
         >
           Login

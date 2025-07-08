@@ -4,21 +4,16 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { CustomThemeProvider } from "./context/ThemeContext.tsx";
-import { SnackbarProvider } from "notistack";
+import { ToastContainer } from "react-toastify";
+import { ToastProp } from "./components/ToasterProp.ts";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <SnackbarProvider
-      maxSnack={3}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      autoHideDuration={3000}
-      style={{ opacity: 0.9 }}
-    >
-      <AuthProvider>
-        <CustomThemeProvider>
-          <App />
-        </CustomThemeProvider>
-      </AuthProvider>
-    </SnackbarProvider>
+    <AuthProvider>
+      <CustomThemeProvider>
+        <ToastContainer {...ToastProp} />
+        <App />
+      </CustomThemeProvider>
+    </AuthProvider>
   </BrowserRouter>
 );

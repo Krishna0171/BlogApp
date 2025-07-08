@@ -33,14 +33,21 @@ export const getAll = async (req, res) => {
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 5;
   searchQuery = searchQuery || "";
-  
-  console.log(page, searchQuery, limit)
+
+  console.log(page, searchQuery, limit);
   const posts = await getAllPosts(searchQuery, page, limit);
   return res.status(200).json(posts);
 };
 
 export const update = async (req, res) => {
-  const post = await updatePost(req.params.id, req.body);
+  const {title, content} = req.body;
+
+  if (!title || !content) {
+    throw new ApiError(400, messageConstant.InvalidInput(constants.Post));
+  }
+
+  const id = req.params.id;
+  const post = await updatePost(id, {title, content});
   res.json(post);
 };
 

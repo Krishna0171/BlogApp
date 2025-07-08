@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -10,13 +10,20 @@ import {
   IconButton,
   Typography,
   styled,
+  Menu,
+  Tooltip,
+  MenuItem,
 } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import type { Blog } from "../types/blog";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../constants/Routes";
 
 type ExpandMoreProps = {
   expand: boolean;
@@ -33,15 +40,32 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }));
 
-const BlogCard = ({ blog }: { blog: Blog }) => {
-  const [expanded, setExpanded] = React.useState(false);
+const BlogCard = ({
+  blog,
+}: {
+  blog: Blog;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [anchorElAction, setAnchorElAction] = useState<null | HTMLElement>(
+    null
+  );
+
+  const navigate = useNavigate();
+
+  const handleOpenAction = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchorElAction(e.currentTarget);
+  };
+
+  const handleCloseAction = () => {
+    setAnchorElAction(null);
+  };
 
   const handleExpandClick = () => {
     setExpanded((prev) => !prev);
   };
 
   return (
-    <Card sx={{ maxWidth: 600, minWidth: 250, marginBottom: 3, width:"40%"}}>
+    <Card  sx={{ maxWidth: 600, minWidth: 250, marginBottom: 3, width: "40%" }}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="author">
@@ -49,9 +73,27 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          <>
+            <Tooltip title="Action">
+              <IconButton aria-label="settings" onClick={handleOpenAction}>
+                <MoreVertIcon />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              open={Boolean(anchorElAction)}
+              onClose={handleCloseAction}
+              anchorEl={anchorElAction}
+            >
+              <MenuItem onClick={() => navigate(ROUTES.EditPost(blog.id))}>
+                <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                Edit
+              </MenuItem>
+              <MenuItem>
+                <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                Delete
+              </MenuItem>
+            </Menu>
+          </>
         }
         title={blog.title}
         subheader={

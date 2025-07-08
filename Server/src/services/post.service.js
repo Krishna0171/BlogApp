@@ -53,7 +53,7 @@ export const getPostById = async (id) => {
 
 export const updatePost = async (id, data) => {
   return await prisma.post.update({
-    where: { id },
+    where: { id, isDeleted: false },
     data,
   });
 };

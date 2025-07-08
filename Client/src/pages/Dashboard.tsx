@@ -4,6 +4,7 @@ import SearchInput from "../components/inputs/SearchInput";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
+import { ROUTES } from "../constants/Routes";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -14,10 +15,10 @@ const Dashboard = () => {
       <Typography variant="h4" gutterBottom>
         Dashboard – Blog Feed
       </Typography>
-      <Box>
+      <Box sx={{display: "flex", justifyContent:"space-between", alignItems:"center"}}>
         <SearchInput setSearchQuery={setSearchQuery} />
         {user?.role === "admin" && (
-          <Button color="inherit" component={Link} to="/create-post">
+          <Button color="primary" variant="contained" component={Link} to={ROUTES.CreatePost}>
             Create Post
           </Button>
         )}

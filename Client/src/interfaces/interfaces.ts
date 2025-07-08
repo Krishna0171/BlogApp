@@ -14,3 +14,11 @@ export interface CreatePostData {
   title: string;
   content: string;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  exp?: number;
+}

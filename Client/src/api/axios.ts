@@ -1,7 +1,9 @@
 import axios from "axios";
+import { getToken } from "../utils/jwtUtils";
 
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
+  withCredentials: true,
 });
 
 export const safeRequest = async <T = any>(
@@ -15,5 +17,14 @@ export const safeRequest = async <T = any>(
     return [null, message];
   }
 };
+
+// Request Interceptor: attach token
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export default api;

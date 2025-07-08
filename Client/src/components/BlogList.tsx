@@ -3,19 +3,18 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import BlogCard from "./BlogCard";
 import * as blogService from "../services/blogService";
 import type { Blog } from "../types/blog";
-import { useAppSnackbar } from "../hooks/useAppSnackbar";
 import { Box, Stack } from "@mui/material";
+import { toast } from "react-toastify";
 
 type Props = {
-    searchQuery: string;
-}
+  searchQuery: string;
+};
 
-const BlogList = ({searchQuery}: Props) => {
+const BlogList = ({ searchQuery }: Props) => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const { showError } = useAppSnackbar();
 
   const fetchBlogs = async () => {
     const result = await blogService.fetchBlogs(searchQuery, page);
@@ -25,7 +24,7 @@ const BlogList = ({searchQuery}: Props) => {
       setHasMore(newBlogs.length > 0);
       setPage((prev) => prev + 1);
     } else {
-      showError(result.Message);
+      toast.error(result.Message);
     }
   };
 
@@ -45,9 +44,9 @@ const BlogList = ({searchQuery}: Props) => {
           loader={<p>Loading more...</p>}
           endMessage={<p style={{ textAlign: "center" }}>No more blogs ✨</p>}
         >
-          <Stack spacing={2} rowGap={2} direction={"row"} flexWrap={"wrap"}>
+          <Stack gap={2} direction={"row"} flexWrap={"wrap"}>
             {blogs.map((blog) => (
-              <BlogCard key={blog.id} blog={blog} />
+              <BlogCard key={blog.id} blog={blog}/>
             ))}
           </Stack>
         </InfiniteScroll>
