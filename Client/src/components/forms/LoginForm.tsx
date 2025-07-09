@@ -2,7 +2,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { LoginFormData } from "../../interfaces/interfaces";
 import { useForm } from "react-hook-form";
-import { Box, Button, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  TextField,
+} from "@mui/material";
 import { InvalidEmailFormat, Required } from "../../constants/ErrorMessage";
 import * as authService from "../../services/authService";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,6 +21,7 @@ import { toast } from "react-toastify";
 const schema = yup.object({
   email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
   password: yup.string().required(Required("Password")),
+  rememberMe: yup.boolean().default(false),
 });
 
 const LoginForm = () => {
@@ -59,6 +66,11 @@ const LoginForm = () => {
           error={!!errors.password}
           helperText={errors.password?.message}
         />
+        <FormControlLabel
+          control={<Checkbox />}
+          label="Remember me"
+          {...register("rememberMe")}
+        />
 
         <Box textAlign="right" mt={1}>
           <Link
@@ -87,6 +99,10 @@ const LoginForm = () => {
           Register
         </Link>
       </Box>
+
+      <Button onClick={() => (window.location.href = `http://localhost:5000/api/auth/google`)}>
+        Login with Google
+      </Button>
     </>
   );
 };

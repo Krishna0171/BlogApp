@@ -24,15 +24,19 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import type { Blog } from "../types/blog";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/Routes";
+import { useShare } from "../hooks/useShare";
+import { useAuth } from "../hooks/useAuth";
+import * as postService from "../services/blogService";
+import { ADMIN } from "../constants/Constants";
 
-type ExpandMoreProps = {
+type Props = {
   expand: boolean;
 } & React.ComponentProps<typeof IconButton>;
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
+const ExpandMore = styled((props: Props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
-})<ExpandMoreProps>(({ theme, expand }) => ({
+})<Props>(({ theme, expand }) => ({
   marginLeft: "auto",
   transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
   transition: theme.transitions.create("transform", {
@@ -42,15 +46,20 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 const BlogCard = ({
   blog,
+  handleDeletePost,
 }: {
   blog: Blog;
+  handleDeletePost: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [anchorElAction, setAnchorElAction] = useState<null | HTMLElement>(
     null
   );
+  const [isFavorite, setIsFavorite] = useState<boolean>(blog.isFavorite);
 
   const navigate = useNavigate();
+  const { share } = useShare();
+  const { user } = useAuth();
 
   const handleOpenAction = (e: React.MouseEvent<HTMLElement>) => {
     setAnchorElAction(e.currentTarget);
@@ -64,8 +73,22 @@ const BlogCard = ({
     setExpanded((prev) => !prev);
   };
 
+  const handleShare = () => {
+    const postUrl = `${window.location.origin}`;
+    share(blog.title, postUrl);
+  };
+
+  const toggleFavoritePost = async () => {
+    const result = await postService.toggleFavoritePost(blog.id);
+    if (result.isSuccess) {
+      setIsFavorite((prev) => !prev);
+    }
+  };
+
+  const favoriteIconColor = isFavorite ? "error" : "default";
+
   return (
-    <Card  sx={{ maxWidth: 600, minWidth: 250, marginBottom: 3, width: "40%" }}>
+    <Card sx={{ maxWidth: 600, minWidth: 250, marginBottom: 3, width: "40%" }}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="author">
@@ -74,25 +97,34 @@ const BlogCard = ({
         }
         action={
           <>
-            <Tooltip title="Action">
-              <IconButton aria-label="settings" onClick={handleOpenAction}>
-                <MoreVertIcon />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              open={Boolean(anchorElAction)}
-              onClose={handleCloseAction}
-              anchorEl={anchorElAction}
-            >
-              <MenuItem onClick={() => navigate(ROUTES.EditPost(blog.id))}>
-                <EditIcon fontSize="small" sx={{ mr: 1 }} />
-                Edit
-              </MenuItem>
-              <MenuItem>
-                <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-                Delete
-              </MenuItem>
-            </Menu>
+            {user?.id == blog.authorId ? (
+              <>
+                <Tooltip title="Action">
+                  <IconButton aria-label="settings" onClick={handleOpenAction}>
+                    <MoreVertIcon />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  open={Boolean(anchorElAction)}
+                  onClose={handleCloseAction}
+                  anchorEl={anchorElAction}
+                >
+                  <MenuItem onClick={() => navigate(ROUTES.EditPost(blog.id))}>
+                    <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                    Edit
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleDeletePost(blog.id);
+                      handleCloseAction();
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                    Delete
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : null}
           </>
         }
         title={blog.title}
@@ -115,10 +147,16 @@ const BlogCard = ({
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
+        {user?.role === ADMIN ? (
+          <IconButton
+            color={favoriteIconColor}
+            aria-label="add to favorites"
+            onClick={toggleFavoritePost}
+          >
+            <FavoriteIcon />
+          </IconButton>
+        ) : null}
+        <IconButton aria-label="share" onClick={handleShare}>
           <ShareIcon />
         </IconButton>
         <ExpandMore

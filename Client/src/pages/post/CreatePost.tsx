@@ -19,7 +19,7 @@ const CreatePost = () => {
     }
   };
 
-  return <PostForm onSubmit={handleCreate} />;
+  return <PostForm onSubmit={handleCreate}  />;
 };
 
 export default CreatePost;

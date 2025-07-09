@@ -27,7 +27,7 @@ const App = () => {
         {/* Protected routes with layout */}
         <Route path="/" element={<AppLayout />}>
           <Route element={<AuthLayout />}>
-            <Route path={ROUTES.Dashboard} element={<Dashboard />} />
+            <Route path={ROUTES.Dashboard} element={<Dashboard />}/>
             <Route
               path={ROUTES.CreatePost}
               element={

@@ -1,4 +1,3 @@
-import { Typography } from "@mui/material";
 import PostForm from "../../components/forms/PostForm";
 import { toast } from "react-toastify";
 import type { CreatePostData } from "../../interfaces/interfaces";
@@ -8,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import * as postService from "../../services/blogService";
 import type { Blog } from "../../types/blog";
 import Loading from "../../components/Loading";
+import { UpdateSuccess } from "../../constants/SuccessMessages";
 
 const EditPost = () => {
   const { id } = useParams();
@@ -24,7 +24,7 @@ const EditPost = () => {
   const handleUpdate = async (data: CreatePostData) => {
     const result = await postService.updatePost(id!, data);
     if (result.isSuccess) {
-      toast.success("Post updated");
+      toast.success(UpdateSuccess("Post"));
       navigate(ROUTES.Dashboard);
     } else {
       toast.error(result.Message);

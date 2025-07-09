@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getToken } from "../utils/jwtUtils";
+import { toast } from "react-toastify";
 
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
@@ -26,5 +27,28 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (res) => res,
+  async (err) => {
+    if (err.response.status === 401) {
+      try {
+        const refreshRes = await axios.post("/auth/refresh-token", null, {
+          withCredentials: true
+        });
+        const newAccessToken = refreshRes.data.accessToken;
+
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        err.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return axios(err.config); 
+      } catch (refreshErr) {
+        toast.error(err?.response?.message)
+      }
+    }
+    return Promise.reject(err);
+  }
+);
 
 export default api;

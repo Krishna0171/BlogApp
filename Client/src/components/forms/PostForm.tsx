@@ -17,7 +17,7 @@ type PostFormProps = {
 };
 
 const PostForm = ({
-  defaultValues = {},
+  defaultValues ,
   onSubmit,
   isEditing = false,
 }: PostFormProps) => {

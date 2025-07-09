@@ -18,6 +18,7 @@ import { confirmDialog } from "../utils/sweetAlert";
 import { toast } from "react-toastify";
 import { LogoutSuccess } from "../constants/SuccessMessages";
 import { ROUTES } from "../constants/Routes";
+import { logoutUser } from "../services/authService";
 
 const pages = [{ name: "Blogs", link: "/blog" }];
 const settings = ["Profile", "Account", "Dashboard"];
@@ -40,9 +41,14 @@ function Navbar() {
     });
 
     if (confirmed) {
-      logout();
-      toast.success(LogoutSuccess);
-      navigate(ROUTES.Login);
+      const result = await logoutUser();
+      if (result.isSuccess) {
+        logout();
+        toast.success(LogoutSuccess);
+        navigate(ROUTES.Login);
+      } else {
+        toast.error(result.Message);
+      }
     }
   };
 

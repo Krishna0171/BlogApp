@@ -18,6 +18,22 @@ export const fetchBlogs = async (
   return successResult(res);
 };
 
+export const fetchFavoriteBlogs = async (
+  searchQuery: string = "",
+  page: number = 1,
+  limit: number = 5
+) => {
+  const [res, error] = await safeRequest(
+    api.get(
+      API_ROUTES.FetchFavoriteBlogs +
+        `?searchQuery=${searchQuery}&page=${page}&limit=${limit}`
+    )
+  );
+  console.log(res)
+  if (error) return errorResult(error);
+  return successResult(res);
+};
+
 export const createPost = async (data: CreatePostData) => {
   const [res, error] = await safeRequest(api.post(API_ROUTES.CreatePost, data));
   if (error) return errorResult(error);
@@ -33,6 +49,20 @@ export const getPostById = async (id: string) => {
 export const updatePost = async (id: string, data: CreatePostData) => {
   const [res, error] = await safeRequest(
     api.put(API_ROUTES.updatePost(id), data)
+  );
+  if (error) return errorResult(error);
+  return successResult(res);
+};
+
+export const deletePost = async (id: string) => {
+  const [res, error] = await safeRequest(api.delete(API_ROUTES.deletePost(id)));
+  if (error) return errorResult(error);
+  return successResult(res);
+};
+
+export const toggleFavoritePost = async (id: string) => {
+  const [res, error] = await safeRequest(
+    api.patch(API_ROUTES.FavoritePost(id))
   );
   if (error) return errorResult(error);
   return successResult(res);

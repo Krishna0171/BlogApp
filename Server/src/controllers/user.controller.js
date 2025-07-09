@@ -52,3 +52,4 @@ export const getMe = async (req, res) => {
   const user = await userService.getUserById(req.user.id);
   res.status(200).json(user);
 };
+
