@@ -7,7 +7,9 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { InvalidEmailFormat, Required } from "../../constants/ErrorMessage";
 import * as authService from "../../services/authService";
@@ -17,6 +19,9 @@ import PasswordInput from "../inputs/PasswordInput";
 import { LoginSuccess } from "../../constants/SuccessMessages";
 import { ROUTES } from "../../constants/Routes";
 import { toast } from "react-toastify";
+import { GitHub } from "@mui/icons-material";
+import ForgotPassword from "../ForgotPassword";
+import { useState } from "react";
 
 const schema = yup.object({
   email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
@@ -25,6 +30,8 @@ const schema = yup.object({
 });
 
 const LoginForm = () => {
+  const [showForgotDialog, setShowForgotDialog] = useState<boolean>(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -66,19 +73,32 @@ const LoginForm = () => {
           error={!!errors.password}
           helperText={errors.password?.message}
         />
-        <FormControlLabel
-          control={<Checkbox />}
-          label="Remember me"
-          {...register("rememberMe")}
-        />
+        <Box
+          display={"flex"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+          mt={1}
+        >
+          <FormControlLabel
+            control={<Checkbox />}
+            label="Remember me"
+            {...register("rememberMe")}
+          />
 
-        <Box textAlign="right" mt={1}>
-          <Link
+          {/* <Link
             to={ROUTES.ForgotPassword}
-            className="hover:underline text-blue-500 hover:text-blue-800"
+            className="hover:underline text-blue-500 hover:text-blue-800 tracking-wider"
           >
             Forgot Password?
-          </Link>
+          </Link> */}
+          <Button
+            onClick={() => setShowForgotDialog(true)}
+            className="hover:underline text-blue-500 hover:text-blue-800 tracking-wider"
+            sx={{ mt: 2 }}
+            variant="text"
+          >
+            Forgot Password?
+          </Button>
         </Box>
         <Button
           type="submit"
@@ -90,19 +110,60 @@ const LoginForm = () => {
           {isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </form>
-      <Box textAlign="center" mt={1}>
-        Don't have an Account?
+      <Box textAlign="center" my={1} letterSpacing={2}>
+        Don't have an Account? &nbsp;
         <Link
           to={ROUTES.Register}
-          className="ms-2 hover:underline text-blue-500 hover:text-blue-800"
+          className="hover:underline text-blue-500 hover:text-blue-800"
         >
           Register
         </Link>
       </Box>
 
-      <Button onClick={() => (window.location.href = `http://localhost:5000/api/auth/google`)}>
-        Login with Google
-      </Button>
+      <Stack gap={2} mt={5}>
+        <Typography variant="body2" fontWeight={"bold"} textAlign={"center"}>
+          --- Or Login with ---
+        </Typography>
+        <Button
+          variant="contained"
+          color="info"
+          startIcon={
+            <Box
+              sx={{
+                backgroundColor: "white",
+                borderRadius: "50%",
+                padding: "2px",
+              }}
+            >
+              <img
+                className="w-4 h-4"
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                loading="lazy"
+                alt="google logo"
+              />
+            </Box>
+          }
+          onClick={() =>
+            (window.location.href = `http://localhost:5000/api/auth/google`)
+          }
+        >
+          Login with Google
+        </Button>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: "GrayText" }}
+          startIcon={<GitHub />}
+          onClick={() =>
+            (window.location.href = `http://localhost:5000/api/auth/github`)
+          }
+        >
+          Login with Github
+        </Button>
+      </Stack>
+      <ForgotPassword
+        open={showForgotDialog}
+        onClose={() => setShowForgotDialog(false)}
+      />
     </>
   );
 };

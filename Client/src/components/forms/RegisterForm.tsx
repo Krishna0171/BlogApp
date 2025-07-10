@@ -7,7 +7,7 @@ import {
   InvalidEmailFormat,
   MaxiLengthError,
   MinLengthError,
-  PasswordMustMatch,
+  MustMatch,
   Required,
 } from "../../constants/ErrorMessage";
 import * as authService from "../../services/authService";
@@ -36,7 +36,7 @@ const schema = yup.object({
   confirmPassword: yup
     .string()
     .required(Required("Confirm Password"))
-    .oneOf([yup.ref("password")], PasswordMustMatch),
+    .oneOf([yup.ref("password")], MustMatch("Confirm Password", "Password")),
 });
 
 const RegisterForm = () => {
@@ -103,11 +103,11 @@ const RegisterForm = () => {
           {isSubmitting ? "Registering..." : "Register"}
         </Button>
       </form>
-      <Box textAlign="center" mt={1}>
-        Already have an Account?
+      <Box textAlign="center" mt={1} letterSpacing={2}>
+        Already have an Account? &nbsp;
         <Link
           to={ROUTES.Login}
-          className="ms-2 hover:underline text-blue-500 hover:text-blue-800"
+          className="hover:underline text-blue-500 hover:text-blue-800"
         >
           Login
         </Link>

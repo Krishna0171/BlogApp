@@ -4,12 +4,13 @@ import * as userService from "../services/user.service.js";
 import * as constants from "../../constants.js";
 import * as messageConstants from "../../messageConstants.js";
 import ApiError from "../utils/ApiError.js";
+import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 const createAccessToken = (user) => {
-  console.log(user);
   return jwt.sign(
     {
       id: user.id,
@@ -19,7 +20,7 @@ const createAccessToken = (user) => {
     },
     JWT_SECRET,
     {
-      expiresIn: "15m",
+      expiresIn: "2m",
     }
   );
 };
@@ -65,23 +66,80 @@ export const login = async (req, res) => {
   const user = await userService.getUserByEmail(email);
   if (!user) throw new ApiError(401, messageConstants.InvalidCredentials);
 
+  if (!user.password) {
+    throw new ApiError(401, messageConstants.InvalidCredentials);
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(401, messageConstants.InvalidCredentials);
 
   const token = createAccessToken(user);
-  const refreshToken = createRefreshToken(user.id, rememberMe ? "7d" : "1d");
+  const refreshToken = createRefreshToken(user.id, rememberMe ? "10m" : "5m");
+  const refreshTokenExpiry = rememberMe ?  10 * 60 * 1000 : 5 * 60 * 1000;
 
   return res
     .status(200)
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // in ms
+      maxAge: refreshTokenExpiry,
     })
     .json({
       token,
       refreshToken,
     });
+};
+
+//Forgot Password
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await userService.getUserByEmail(email);
+
+  if (!user?.password) {
+    throw new ApiError(404, messageConstants.NotExists(constants.User));
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 2); 
+  await userService.updateUser(user.id, {
+    resetToken: hashedToken,
+    resetTokenExpiry,
+  });
+
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  await sendEmail(email, "Reset Your Password.", `Click here : ${resetLink}`);
+
+  return res.sendStatus(200);
+};
+
+//Reset Password
+export const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const users = await userService.getUsers({
+    resetToken: hashedToken,
+    resetTokenExpiry: { gte: new Date() },
+  });
+  const user = users?.[0];
+
+  if (!user) {
+    throw new ApiError(400, messageConstants.InvalidToken);
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await userService.updateUser(user.id, {
+    password: hashedPassword,
+    resetToken: null,
+    resetTokenExpiry: null,
+  });
+
+  return res.sendStatus(200);
 };
 
 //Logout
@@ -111,15 +169,21 @@ export const refreshToken = async (req, res) => {
 };
 
 //OAUTH
-export const googleCallback = async (req, res) => {
+export const callback = async (req, res) => {
   const user = req.user;
 
   if (!user) {
     throw new ApiError(401, "Google Authentication Failed!");
   }
-  
-  const token = createAccessToken(user);
-  return res.redirect(
-    `${process.env.FRONTEND_URL}/oauth-success?token=${token}`
-  );
+
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user.id, "7d");
+
+  return res
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`);
 };

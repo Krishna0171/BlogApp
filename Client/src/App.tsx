@@ -14,6 +14,8 @@ import { ADMIN } from "./constants/Constants";
 import AuthLayout from "./components/layout/AuthLayout";
 import CreatePost from "./pages/post/CreatePost";
 import EditPost from "./pages/post/EditPost";
+import OAuthSuccess from "./pages/OAuthSuccess";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -27,7 +29,7 @@ const App = () => {
         {/* Protected routes with layout */}
         <Route path="/" element={<AppLayout />}>
           <Route element={<AuthLayout />}>
-            <Route path={ROUTES.Dashboard} element={<Dashboard />}/>
+            <Route path={ROUTES.Dashboard} element={<Dashboard />} />
             <Route
               path={ROUTES.CreatePost}
               element={
@@ -46,6 +48,17 @@ const App = () => {
             />
           </Route>
         </Route>
+
+        <Route
+          path={ROUTES.OAuthSuccess}
+          element={
+            isAuthenticated ? (
+              <Navigate to={ROUTES.Dashboard} />
+            ) : (
+              <OAuthSuccess />
+            )
+          }
+        />
         <Route
           path={ROUTES.Login}
           element={
@@ -59,9 +72,19 @@ const App = () => {
           }
         />
         <Route
+          path={ROUTES.ResetPassword}
+          element={
+            !isAuthenticated ? (
+              <ResetPassword />
+            ) : (
+              <Navigate to={ROUTES.Dashboard} />
+            )
+          }
+        />
+        <Route
           path={ROUTES.Unauthorized}
           element={
-            isAuthenticated ? <Unauthorized /> : <Navigate to={ROUTES.Login} />
+            !isAuthenticated ? <Navigate to={ROUTES.Login} /> : <Unauthorized />
           }
         />
         <Route path="*" element={<NotFound />} />

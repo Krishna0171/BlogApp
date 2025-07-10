@@ -1,6 +1,8 @@
 export const LoginSuccess = "Login successful!";
 export const RegisterSuccess = "User Registration Successful!";
 export const LogoutSuccess = "Logout Successful!";
+export const ResetPasswordSuccess =
+  "Your password has been reset successfully!";
 
 export const CreateSuccess = (input: string) =>
   input + " Created Successfully!";

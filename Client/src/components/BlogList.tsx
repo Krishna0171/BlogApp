@@ -24,7 +24,6 @@ const BlogList = ({ searchQuery, displayFavorites = false }: Props) => {
 
     let result;
     if (!displayFavorites) {
-      console.log(displayFavorites)
       result = await postService.fetchBlogs(searchQuery, currentPage);
     } else {
       result = await postService.fetchFavoriteBlogs(searchQuery, currentPage);

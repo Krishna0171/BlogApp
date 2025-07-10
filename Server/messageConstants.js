@@ -11,3 +11,4 @@ export const InvalidInput = (entity) => {
 };
 
 export const InvalidCredentials = "Invalid Credentials!";
+export const InvalidToken = "Invalid or expired link! Try generating new!";

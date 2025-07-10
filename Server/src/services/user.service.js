@@ -33,11 +33,11 @@ export const getUserByEmail = async (email) => {
 };
 
 export const createUser = async (data) => {
-    return await prisma.user.create({
-        data,
-        select: userSafeSelect
-    });
-}
+  return await prisma.user.create({
+    data,
+    select: userSafeSelect,
+  });
+};
 
 export const updateUser = async (id, data) => {
   return await prisma.user.update({
@@ -52,5 +52,18 @@ export const deleteUser = async (id) => {
     where: { id },
     data: { isDeleted: true },
     select: userSafeSelect,
+  });
+};
+
+export const getUsers = async (condition) => {
+  return await prisma.user.findMany({
+    where: {
+      AND: [
+        {
+          isDeleted: false,
+        },
+        { ...condition },
+      ],
+    },
   });
 };

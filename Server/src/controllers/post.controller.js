@@ -35,7 +35,6 @@ export const getAll = async (req, res) => {
   limit = parseInt(limit) || 5;
   searchQuery = searchQuery || "";
 
-  console.log(page, searchQuery, limit);
   const posts = await getAllPosts(searchQuery, page, limit);
   return res.status(200).json(posts);
 };
@@ -46,7 +45,6 @@ export const getFavorites = async (req, res) => {
   limit = parseInt(limit) || 5;
   searchQuery = searchQuery || "";
 
-  console.log(page, searchQuery, limit);
   const posts = await getFavoritePosts(searchQuery, page, limit);
   return res.status(200).json(posts);
 };
@@ -60,7 +58,6 @@ export const update = async (req, res) => {
 
   const id = req.params.id;
   const existingPost = await getPostById(id);
-  console.log(id);
   if (!existingPost) {
     throw new ApiError(400, messageConstant.NotExists(constants.Post));
   }

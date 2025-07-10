@@ -5,6 +5,7 @@ import {
   getUserByEmail,
   getUserById,
 } from "../services/user.service.js";
+import { Strategy as GithubStrategy} from "passport-github2";
 
 passport.use(
   "google",
@@ -26,8 +27,28 @@ passport.use(
   )
 );
 
+passport.use(
+  "github",
+  new GithubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "/api/auth/github/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const name = profile.displayName || profile.username;
+      const email = profile.emails?.[0].value || `${profile.username}@users.noreply.github.com`;
+      let user = await getUserByEmail(email);
+      if (!user) {
+        user = await createUser({ name, email });
+      }
+      return done(null, user);
+    }
+  )
+);
+
 passport.serializeUser((user, done) => {
-  done(null, user.id); // store user ID in session
+  done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {

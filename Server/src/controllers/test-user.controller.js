@@ -5,7 +5,6 @@ export const getAllUsers = async (req, res) => {
     const result = await pool.query("Select * from users order by id asc");
     res.status(200).json(result.rows);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Server error" });
   }
 };

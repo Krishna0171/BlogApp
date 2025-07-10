@@ -29,7 +29,6 @@ export const fetchFavoriteBlogs = async (
         `?searchQuery=${searchQuery}&page=${page}&limit=${limit}`
     )
   );
-  console.log(res)
   if (error) return errorResult(error);
   return successResult(res);
 };
