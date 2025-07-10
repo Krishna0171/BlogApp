@@ -6,6 +6,7 @@ import {
   removeToken,
   isTokenValid,
 } from "../utils/jwtUtils";
+import { refreshAccessToken } from "../services/authService";
 
 interface AuthContextType {
   user: User | null;
@@ -38,13 +39,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     removeToken();
   };
 
-  useEffect(() => {
-    if (isTokenValid()) {
-      setUser(getUserFromToken<User>());
+  const tryRefreshToken = async () => {
+    const result = await refreshAccessToken();
+    if (result.isSuccess && result.Data?.accessToken) {
+      setToken(result.Data?.accessToken);
+      const decode = getUserFromToken<User>();
+      setUser(decode);
     } else {
       logout();
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    if (isTokenValid()) {
+      setUser(getUserFromToken<User>());
+      setLoading(false);
+    } else {
+      tryRefreshToken();
+    }
   }, []);
 
   return (

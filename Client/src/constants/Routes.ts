@@ -18,6 +18,7 @@ export const API_ROUTES = {
     ForgotPassword: '/auth/forgot-password',
     ResetPassword: '/auth/reset-password',
     OAuthGoogle: '/auth/google',
+    RefreshToken: '/auth/refresh-token',
 
     GetSessions: '/auth/sessions',
     DeleteSession: (id:string) => `/auth/sessions/${id}`,
