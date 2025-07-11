@@ -6,7 +6,7 @@ import Loading from "./Loading";
 
 type Props = {
   children: ReactNode;
-  allowedRoles: string[];
+  allowedRoles?: string[];
 };
 
 const ProtectedRoute = ({ children, allowedRoles }: Props) => {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, allowedRoles }: Props) => {
     if (!user && !loading) {
       navigate(ROUTES.Login);
     }
-    if (user && !loading && !allowedRoles.includes(user.role)) {
+    if (user && !loading && allowedRoles && !allowedRoles.includes(user.role)) {
       navigate(ROUTES.Unauthorized);
     }
   }, [loading, navigate]);

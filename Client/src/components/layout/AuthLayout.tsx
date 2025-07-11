@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ROUTES } from "../../constants/Routes";
 import Loading from "../Loading";
 

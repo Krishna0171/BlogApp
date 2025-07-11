@@ -44,8 +44,6 @@ function Navbar() {
       const result = await logoutUser();
       if (result.isSuccess) {
         logout();
-        toast.success(LogoutSuccess);
-        navigate(ROUTES.Login);
       } else {
         toast.error(result.Message);
       }

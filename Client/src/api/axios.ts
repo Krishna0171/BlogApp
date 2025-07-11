@@ -28,26 +28,5 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-api.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    if (err.response.status === 401) {
-      try {
-        const refreshRes = await axios.post("http://localhost:5000/api/auth/refresh-token", null);
-        const newAccessToken = refreshRes.data?.accessToken;
-        setToken(newAccessToken);
-
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${newAccessToken}`;
-        err.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return axios(err.config);
-      } catch (refreshErr) {
-        toast.error(err?.response?.message);
-      }
-    }
-    return Promise.reject(err);
-  }
-);
 
 export default api;

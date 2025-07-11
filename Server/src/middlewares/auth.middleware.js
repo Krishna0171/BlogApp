@@ -9,9 +9,7 @@ export const authenticate = async (req, res, next) => {
     req.body?.accessToken ||
     req.header("Authorization")?.replace("Bearer ", "");
 
-  const refreshToken = req.cookies?.refreshToken;
-
-  if (!token || !refreshToken)
+  if (!token)
     throw new ApiError(401, "Unauthenticated Access!");
 
   try {

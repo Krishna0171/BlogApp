@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { type User } from "../interfaces/interfaces";
 
 const TOKEN_KEY = "token";
 
@@ -19,12 +20,12 @@ export const removeToken = () => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-export const getUserFromToken = <T>(): T | null => {
+export const getUserFromToken = (): User | null => {
   const token = getToken();
   if (!token) return null;
 
   try {
-    return jwtDecode<T>(token);
+    return jwtDecode<User>(token);
   } catch (error) {
     console.error("Invalid JWT", error);
     return null;
@@ -32,14 +33,17 @@ export const getUserFromToken = <T>(): T | null => {
 };
 
 export const isTokenValid = (): boolean => {
-  const token = getToken();
-  if (!token) return false;
+  const exp = getTokenExpiry();
+  return Date.now() <= exp * 1000;
+};
 
+export const getTokenExpiry = (): number => {
+  const token = getToken();
+  if (!token) return 0;
   try {
-    const decoded = jwtDecode<DecodedToken>(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp > currentTime;
+    const decode = jwtDecode<DecodedToken>(token);
+    return decode.exp;
   } catch (error) {
-    return false;
+    return 0;
   }
 };

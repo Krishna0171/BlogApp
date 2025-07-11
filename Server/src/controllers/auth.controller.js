@@ -9,6 +9,16 @@ import sendEmail from "../utils/sendEmail.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const createCookieOptions = {
+  httpOnly: true,
+  secure: true,
+  maxAge: 1000 * 60 * 60 * 24 * 7,
+};
+
+const clearCookieOptions = {
+  httpOnly: true,
+  secure: true,
+};
 
 const createAccessToken = (user) => {
   return jwt.sign(
@@ -20,19 +30,21 @@ const createAccessToken = (user) => {
     },
     JWT_SECRET,
     {
-      expiresIn: "2m",
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME,
     }
   );
 };
 
-const createRefreshToken = (id, expiresIn) => {
+const createRefreshToken = (id, rememberMe) => {
   return jwt.sign(
     {
       id,
     },
     JWT_REFRESH_SECRET,
     {
-      expiresIn,
+      expiresIn: rememberMe
+        ? process.env.REFRESH_TOKEN_EXPIRY_TIME_WITH_REMEMBER_ME
+        : process.env.REFRESH_TOKEN_EXPIRY_TIME_WITHOUT_REMEMBER_ME,
     }
   );
 };
@@ -74,16 +86,11 @@ export const login = async (req, res) => {
   if (!isMatch) throw new ApiError(401, messageConstants.InvalidCredentials);
 
   const token = createAccessToken(user);
-  const refreshToken = createRefreshToken(user.id, rememberMe ? "10m" : "5m");
-  const refreshTokenExpiry = rememberMe ?  10 * 60 * 1000 : 5 * 60 * 1000;
+  const refreshToken = createRefreshToken(user.id, rememberMe);
 
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: refreshTokenExpiry,
-    })
+    .cookie("refreshToken", refreshToken, createCookieOptions)
     .json({
       token,
       refreshToken,
@@ -104,7 +111,7 @@ export const forgotPassword = async (req, res) => {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 2); 
+  const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 2);
   await userService.updateUser(user.id, {
     resetToken: hashedToken,
     resetTokenExpiry,
@@ -144,10 +151,7 @@ export const resetPassword = async (req, res) => {
 
 //Logout
 export const logout = (req, res) => {
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: true,
-  });
+  res.clearCookie("refreshToken", clearCookieOptions);
   return res.sendStatus(200);
 };
 
@@ -177,13 +181,9 @@ export const callback = async (req, res) => {
   }
 
   const accessToken = createAccessToken(user);
-  const refreshToken = createRefreshToken(user.id, "7d");
+  const refreshToken = createRefreshToken(user.id, true);
 
   return res
-    .cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
+    .cookie("refreshToken", refreshToken, createCookieOptions)
     .redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`);
 };
