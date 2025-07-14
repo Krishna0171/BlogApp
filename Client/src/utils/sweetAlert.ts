@@ -25,7 +25,7 @@ export const confirmDialog = async ({
 export const logoutDialog = async (
   timeUntilLogout: number
 ): Promise<boolean> => {
-  let timerInterval: number;
+  let timerInterval: ReturnType<typeof setInterval>;
   const result = await Swal.fire({
     title: "Session Expired!",
     html: "Your session is expired in <b></b>. Do you want to logout and login again?",
