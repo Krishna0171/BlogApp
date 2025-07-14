@@ -17,6 +17,7 @@ import OAuthSuccess from "./pages/OAuthSuccess";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Loading from "./components/Loading";
 import { useEffect } from "react";
+import SessionManager from "./pages/SessionManager";
 
 const App = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -59,6 +60,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path={ROUTES.SessionManager} element={<SessionManager />} />
         </Route>
 
         <Route

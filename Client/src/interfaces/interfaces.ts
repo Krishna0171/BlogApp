@@ -1,7 +1,7 @@
 export interface LoginFormData {
   email: string;
   password: string;
-  rememberMe: boolean
+  rememberMe: boolean;
 }
 
 export interface RegisterFormData {
@@ -27,5 +27,6 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  sessionId: string;
   exp?: number;
 }

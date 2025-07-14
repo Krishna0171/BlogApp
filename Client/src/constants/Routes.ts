@@ -1,3 +1,4 @@
+
 export const ROUTES = {
     Login : '/login',
     Register: '/register',
@@ -8,7 +9,7 @@ export const ROUTES = {
     Unauthorized: '/unauthorized',
     CreatePost: '/post/create',
     EditPost: (id?: string) => `/post/edit/${id ?? ":id"}`,
-    DeviceManager: '/login-devices'
+    SessionManager: '/sessions'
 }
 
 export const API_ROUTES = {
@@ -21,8 +22,8 @@ export const API_ROUTES = {
     RefreshToken: '/auth/refresh-token',
 
     GetSessions: '/auth/sessions',
-    DeleteSession: (id:string) => `/auth/sessions/${id}`,
-    DeleteAllSessions: '/auth/sessions',
+    LogoutSession: (id:string) => `/auth/sessions/${id}`,
+    LogoutAllSessions: '/auth/sessions',
 
     FetchBlogs: '/posts',
     FetchFavoriteBlogs: '/posts/favorites',

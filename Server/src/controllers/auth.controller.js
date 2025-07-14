@@ -1,11 +1,13 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as userService from "../services/user.service.js";
+import * as sessionService from "../services/session.service.js";
 import * as constants from "../../constants.js";
 import * as messageConstants from "../../messageConstants.js";
 import ApiError from "../utils/ApiError.js";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
+import { UAParser } from "ua-parser-js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -27,6 +29,7 @@ const createAccessToken = (user) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      sessionId: user.sessionId,
     },
     JWT_SECRET,
     {
@@ -35,10 +38,11 @@ const createAccessToken = (user) => {
   );
 };
 
-const createRefreshToken = (id, rememberMe) => {
+const createRefreshToken = (id, sessionId, rememberMe) => {
   return jwt.sign(
     {
       id,
+      sessionId,
     },
     JWT_REFRESH_SECRET,
     {
@@ -85,8 +89,22 @@ export const login = async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(401, messageConstants.InvalidCredentials);
 
-  const token = createAccessToken(user);
-  const refreshToken = createRefreshToken(user.id, rememberMe);
+  const parser = new UAParser(req.headers["user-agent"]);
+  const result = parser.getResult();
+
+  const sessionData = {
+    userId: user.id,
+    userAgent: `${result.browser.name} from ${result.os.name}`,
+    ipAddress: req.ip,
+    expiresAt: new Date(
+      Date.now() + rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+    ),
+  };
+
+  const session = await sessionService.createSession(sessionData);
+
+  const refreshToken = createRefreshToken(user.id, session.id, rememberMe);
+  const token = createAccessToken({ ...user, sessionId: session.id });
 
   return res
     .status(200)
@@ -150,7 +168,14 @@ export const resetPassword = async (req, res) => {
 };
 
 //Logout
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) return res.sendStatus(204);
+
+  try {
+    const decodeToken = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    await sessionService.deleteSessionById(decodeToken.sessionId);
+  } catch (error) {}
   res.clearCookie("refreshToken", clearCookieOptions);
   return res.sendStatus(200);
 };
@@ -165,7 +190,15 @@ export const refreshToken = async (req, res) => {
     const user = await userService.getUserById(payload.id);
     if (!user) throw new ApiError(401, "User not found!");
 
-    const newAccessToken = createAccessToken(user);
+    const session = (
+      await sessionService.getSessions({ id: payload.sessionId })
+    )?.[0];
+    if (!session) throw new ApiError(401, "Session not found!");
+
+    const newAccessToken = createAccessToken({
+      ...user,
+      sessionId: payload.sessionId,
+    });
     res.json({ accessToken: newAccessToken });
   } catch (e) {
     throw new ApiError(403, "Invalid refresh token!");
@@ -180,10 +213,51 @@ export const callback = async (req, res) => {
     throw new ApiError(401, "Google Authentication Failed!");
   }
 
+  const parser = new UAParser(req.headers["user-agent"]);
+  const result = parser.getResult();
+
+  const sessionData = {
+    userId: user.id,
+    userAgent: `${result.browser.name} from ${result.os.name}`,
+    ipAddress: req.ip,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  };
+
+  const session = await sessionService.createSession(sessionData);
+
   const accessToken = createAccessToken(user);
-  const refreshToken = createRefreshToken(user.id, true);
+  const refreshToken = createRefreshToken(user.id, session.id, true);
 
   return res
     .cookie("refreshToken", refreshToken, createCookieOptions)
     .redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`);
+};
+
+// Force Logout
+export const forceLogout = async (req, res) => {
+  const { sessionId } = req.params;
+  const user = req.user;
+
+  console.log(sessionId);
+  const session = (await sessionService.getSessions({ id: sessionId }))?.[0];
+  if (!session || session.userId != user.id) {
+    throw new ApiError(403, "You are not authorized to logout this session");
+  }
+
+  await sessionService.deleteSessionById(sessionId);
+  return res.sendStatus(200);
+};
+
+//Logut All
+export const logoutAll = async (req, res) => {
+  const user = req.user;
+  const sessions = await sessionService.deleteAllUserSessions(user.id);
+  return res.sendStatus(200);
+};
+
+//Get sessions
+export const getSessions = async (req, res) => {
+  const user = req.user;
+  const sessions = await sessionService.getSessions({ userId: user.id });
+  return res.status(200).json(sessions);
 };
