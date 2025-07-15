@@ -5,14 +5,24 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "./config/passport.js";
-import { createServer, Server } from "http";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { scheduleSessionCleanup } from "./jobs/cleanupSessions.js";
+
+scheduleSessionCleanup();
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: [process.env.CORS_ORIGIN, "http://localhost:5173"],
+    credentials: true,
+  },
+});
 
 app.set("io", io);
 app.use(express.json());

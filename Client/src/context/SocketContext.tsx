@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
+import { toast } from "react-toastify";
 
 interface SocketContextType {
   on: (event: string, callback: (data: any) => void) => void;
@@ -18,7 +19,7 @@ export const SocketContext = createContext<SocketContextType | undefined>(
   undefined
 );
 
-const SocketContextProvider = ({ children }: { children: ReactNode }) => {
+const SocketProvider = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuth();
   const socketRef = useRef<Socket | null>(null);
 
@@ -36,6 +37,11 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
         userId: user?.id,
         role: user?.role,
       });
+
+      socket.on("force-logout", () => {
+        logout();
+        toast.info("You are logged out by another user!");
+      });
     });
 
     socketRef.current = socket;
@@ -43,6 +49,11 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     setupSocket();
+
+    return () => {
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+    };
   }, [user]);
 
   const on = useCallback((event: string, callback: (data: any) => void) => {
@@ -64,4 +75,4 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default SocketContextProvider;
+export default SocketProvider;

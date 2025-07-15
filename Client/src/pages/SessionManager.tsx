@@ -6,10 +6,12 @@ import SessionCard from "../components/SessionCard";
 import { type Session } from "../types/Session";
 import { useAuth } from "../hooks/useAuth";
 import { confirmDialog } from "../utils/sweetAlert";
+import { useSocket } from "../hooks/useSocket";
 
 const SessionManager = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const { user } = useAuth();
+  const { on, off } = useSocket();
 
   const loadSessions = async () => {
     const result = await sessionService.getAllSessions();
@@ -23,13 +25,23 @@ const SessionManager = () => {
       title: "Logout Confirmation!",
       text: "Are you sure you want to logout this device?",
     });
-    await sessionService.logoutSession(sessionId);
-    loadSessions();
+
+    if (confirmation) {
+      await sessionService.logoutSession(sessionId);
+      loadSessions();
+    }
   };
 
   useEffect(() => {
+    on("session-changed", () => {
+      loadSessions();
+    });
     loadSessions();
-  }, []);
+
+    return () => {
+      off("session-changed");
+    };
+  }, [user]);
 
   const currentSessionId = user?.sessionId;
 

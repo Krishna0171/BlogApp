@@ -39,7 +39,7 @@ export const logoutDialog = async (
       const timer = Swal.getPopup()!.querySelector("b")!;
       timerInterval = setInterval(() => {
         timer.textContent = `${Math.floor((Swal.getTimerLeft() ?? 0) / 1000)}s`;
-      }, 100);
+      }, 1000);
     },
     willClose: () => {
       if (timerInterval) clearInterval(timerInterval);

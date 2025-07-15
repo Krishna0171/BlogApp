@@ -6,14 +6,17 @@ import { AuthProvider } from "./context/AuthContext.tsx";
 import { CustomThemeProvider } from "./context/ThemeContext.tsx";
 import { ToastContainer } from "react-toastify";
 import { ToastProp } from "./components/ToasterProp.ts";
+import SocketProvider from "./context/SocketContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <AuthProvider>
-      <CustomThemeProvider>
-        <ToastContainer {...ToastProp} />
-        <App />
-      </CustomThemeProvider>
+      <SocketProvider>
+        <CustomThemeProvider>
+          <ToastContainer {...ToastProp} />
+          <App />
+        </CustomThemeProvider>
+      </SocketProvider>
     </AuthProvider>
   </BrowserRouter>
 );

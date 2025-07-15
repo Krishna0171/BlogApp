@@ -12,15 +12,14 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { confirmDialog } from "../utils/sweetAlert";
 import { toast } from "react-toastify";
-import { LogoutSuccess } from "../constants/SuccessMessages";
 import { ROUTES } from "../constants/Routes";
 import { logoutUser } from "../services/authService";
 
-const pages = [{ name: "Blogs", link: "/blog" }];
+const pages = [{ name: "Blogs", link: ROUTES.Dashboard }, {name: "Sessions", link: ROUTES.SessionManager}];
 const settings = ["Profile", "Account", "Dashboard"];
 
 function Navbar() {
@@ -31,7 +30,6 @@ function Navbar() {
     null
   );
   const { logout, user } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     const confirmed = await confirmDialog({

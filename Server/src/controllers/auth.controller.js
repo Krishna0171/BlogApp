@@ -97,7 +97,7 @@ export const login = async (req, res) => {
     userAgent: `${result.browser.name} from ${result.os.name}`,
     ipAddress: req.ip,
     expiresAt: new Date(
-      Date.now() + rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+      Date.now() + (rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000)
     ),
   };
 
@@ -105,6 +105,9 @@ export const login = async (req, res) => {
 
   const refreshToken = createRefreshToken(user.id, session.id, rememberMe);
   const token = createAccessToken({ ...user, sessionId: session.id });
+
+  const io = req.app.get("io");
+  io.to(user.id).emit("session-changed");
 
   return res
     .status(200)
@@ -175,6 +178,9 @@ export const logout = async (req, res) => {
   try {
     const decodeToken = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
     await sessionService.deleteSessionById(decodeToken.sessionId);
+
+    const io = req.app.get("io");
+    io.to(decodeToken.id).emit("session-changed");
   } catch (error) {}
   res.clearCookie("refreshToken", clearCookieOptions);
   return res.sendStatus(200);
@@ -228,6 +234,9 @@ export const callback = async (req, res) => {
   const accessToken = createAccessToken(user);
   const refreshToken = createRefreshToken(user.id, session.id, true);
 
+  const io = req.app.get("io");
+  io.to(decodeToken.id).emit("session-changed");
+
   return res
     .cookie("refreshToken", refreshToken, createCookieOptions)
     .redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`);
@@ -245,6 +254,11 @@ export const forceLogout = async (req, res) => {
   }
 
   await sessionService.deleteSessionById(sessionId);
+
+  const io = req.app.get("io");
+  io.to(user.id).emit("session-changed");
+  io.to(sessionId).emit("force-logout");
+
   return res.sendStatus(200);
 };
 
@@ -252,6 +266,10 @@ export const forceLogout = async (req, res) => {
 export const logoutAll = async (req, res) => {
   const user = req.user;
   const sessions = await sessionService.deleteAllUserSessions(user.id);
+  if (sessions.count > 0) {
+    const io = req.app.get("io");
+    io.to(user.id).emit("session-changed");
+  }
   return res.sendStatus(200);
 };
 
