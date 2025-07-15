@@ -33,8 +33,14 @@ export const fetchFavoriteBlogs = async (
   return successResult(res);
 };
 
-export const createPost = async (data: CreatePostData) => {
-  const [res, error] = await safeRequest(api.post(API_ROUTES.CreatePost, data));
+export const createPost = async (data: FormData) => {
+  const [res, error] = await safeRequest(
+    api.post(API_ROUTES.CreatePost, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  );
   if (error) return errorResult(error);
   return successResult(res);
 };
@@ -45,9 +51,14 @@ export const getPostById = async (id: string) => {
   return successResult(res);
 };
 
-export const updatePost = async (id: string, data: CreatePostData) => {
+export const updatePost = async (id: string, data: FormData) => {
+  console.log(data)
   const [res, error] = await safeRequest(
-    api.put(API_ROUTES.updatePost(id), data)
+    api.put(API_ROUTES.updatePost(id), data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
   );
   if (error) return errorResult(error);
   return successResult(res);

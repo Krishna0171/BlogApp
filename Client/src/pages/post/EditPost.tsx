@@ -22,7 +22,16 @@ const EditPost = () => {
   }, [id]);
 
   const handleUpdate = async (data: CreatePostData) => {
-    const result = await postService.updatePost(id!, data);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("content", data.content);
+    if (data.image && data.image.length > 0) {
+      formData.append("image", data.image[0]);
+    } else if (blog) {
+      formData.append("imageUrl", blog.imageUrl);
+    }
+    console.log(data);
+    const result = await postService.updatePost(id!, formData);
     if (result.isSuccess) {
       toast.success(UpdateSuccess("Post"));
       navigate(ROUTES.Dashboard);

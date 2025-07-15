@@ -1,6 +1,5 @@
-import { string } from "yup";
-
 export const InvalidEmailFormat = "Invalid Email Format!";
+export const LargeFileSizeError = "File size is too large!"
 
 
 export const MustMatch = (match: string, to: string) =>

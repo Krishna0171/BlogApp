@@ -48,6 +48,7 @@ const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, [user, logout]);
 
   useEffect(() => {
+    if(!user) return;
     setupSocket();
 
     return () => {

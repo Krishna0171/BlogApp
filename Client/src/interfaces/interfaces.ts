@@ -20,6 +20,8 @@ export interface ResetPasswordData {
 export interface CreatePostData {
   title: string;
   content: string;
+  image?: FileList;
+  imageUrl?: string;
 }
 
 export interface User {

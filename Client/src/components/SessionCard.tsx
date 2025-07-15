@@ -1,6 +1,6 @@
 // components/SessionCard.tsx
 import { Card, Typography, Button, Stack } from "@mui/material";
-import type { Session } from "../types/Session.ts";
+import type { Session } from "../types/session.ts";
 
 type Props = {
   session: Session;

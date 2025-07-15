@@ -7,6 +7,7 @@ export type Blog = {
   isDeleted: boolean;
   updatedAt: Date;
   isFavorite: boolean;
+  imageUrl: string;
   author: {
     id: string;
     name: string;

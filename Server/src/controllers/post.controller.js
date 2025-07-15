@@ -11,14 +11,19 @@ import * as messageConstant from "../../messageConstants.js";
 import * as constants from "../../constants.js";
 import ApiError from "../utils/ApiError.js";
 
+const fileStoragePath = process.env.FILE_STORAGE_PATH;
+
 export const create = async (req, res) => {
   const { title, content } = req.body;
+  const image = req.file?.filename;
+  const imageUrl = image ? fileStoragePath + image : null;
+
   if (!title || !content) {
     throw new ApiError(400, messageConstant.InvalidInput(constants.Post));
   }
 
   const authorId = req.user.id;
-  const post = await createPost({ title, content, authorId });
+  const post = await createPost({ title, content, authorId, imageUrl });
   return res.status(200).json(post);
 };
 
@@ -50,11 +55,13 @@ export const getFavorites = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, imageUrl } = req.body;
 
   if (!title || !content) {
     throw new ApiError(400, messageConstant.InvalidInput(constants.Post));
   }
+  const image = req.file?.filename;
+  const updatedImageUrl = image ? fileStoragePath + image : imageUrl;
 
   const id = req.params.id;
   const existingPost = await getPostById(id);
@@ -66,7 +73,11 @@ export const update = async (req, res) => {
     throw new ApiError(400, "Only Author can edit post!");
   }
 
-  const post = await updatePost(id, { title, content });
+  const post = await updatePost(id, {
+    title,
+    content,
+    imageUrl: updatedImageUrl,
+  });
   res.json(post);
 };
 

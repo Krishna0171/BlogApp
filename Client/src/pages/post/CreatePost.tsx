@@ -10,7 +10,14 @@ const CreatePost = () => {
   const navigate = useNavigate();
 
   const handleCreate = async (data: CreatePostData) => {
-    const result = await postService.createPost(data);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("content", data.content);
+    if (data.image && data.image.length > 0) {
+      formData.append("image", data.image[0]);
+    }
+
+    const result = await postService.createPost(formData);
     if (result.isSuccess) {
       toast.success(CreateSuccess("Post"));
       navigate(ROUTES.Dashboard);
@@ -19,7 +26,7 @@ const CreatePost = () => {
     }
   };
 
-  return <PostForm onSubmit={handleCreate}  />;
+  return <PostForm onSubmit={handleCreate} />;
 };
 
 export default CreatePost;
