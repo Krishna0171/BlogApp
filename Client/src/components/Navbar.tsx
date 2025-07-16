@@ -12,14 +12,17 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 import { confirmDialog } from "../utils/sweetAlert";
-import { toast } from "react-toastify";
 import { ROUTES } from "../constants/Routes";
-import { logoutUser } from "../services/authService";
+import type { RootState } from "../store";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { logout } from "../store/slices/authSlice";
 
-const pages = [{ name: "Blogs", link: ROUTES.Dashboard }, {name: "Sessions", link: ROUTES.SessionManager}];
+const pages = [
+  { name: "Blogs", link: ROUTES.Dashboard },
+  { name: "Sessions", link: ROUTES.SessionManager },
+];
 const settings = ["Profile", "Account", "Dashboard"];
 
 function Navbar() {
@@ -29,7 +32,9 @@ function Navbar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
-  const { logout, user } = useAuth();
+  const { user } = useAppSelector((state: RootState) => state.auth);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     const confirmed = await confirmDialog({
@@ -39,11 +44,9 @@ function Navbar() {
     });
 
     if (confirmed) {
-      const result = await logoutUser();
-      if (result.isSuccess) {
-        logout();
-      } else {
-        toast.error(result.Message);
+      const res = await dispatch(logout());
+      if (res.payload) {
+        navigate(ROUTES.Login);
       }
     }
   };

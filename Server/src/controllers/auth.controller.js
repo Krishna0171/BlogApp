@@ -235,7 +235,7 @@ export const callback = async (req, res) => {
   const refreshToken = createRefreshToken(user.id, session.id, true);
 
   const io = req.app.get("io");
-  io.to(decodeToken.id).emit("session-changed");
+  io.to(user.id).emit("session-changed");
 
   return res
     .cookie("refreshToken", refreshToken, createCookieOptions)

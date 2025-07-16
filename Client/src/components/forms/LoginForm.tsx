@@ -12,16 +12,14 @@ import {
   Typography,
 } from "@mui/material";
 import { InvalidEmailFormat, Required } from "../../constants/ErrorMessage";
-import * as authService from "../../services/authService";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
 import PasswordInput from "../inputs/PasswordInput";
-import { LoginSuccess } from "../../constants/SuccessMessages";
 import { ROUTES } from "../../constants/Routes";
-import { toast } from "react-toastify";
 import { GitHub } from "@mui/icons-material";
 import ForgotPassword from "../ForgotPassword";
 import { useState } from "react";
+import { useAppDispatch } from "../../hooks";
+import { login } from "../../store/slices/authSlice";
 
 const schema = yup.object({
   email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
@@ -31,8 +29,7 @@ const schema = yup.object({
 
 const LoginForm = () => {
   const [showForgotDialog, setShowForgotDialog] = useState<boolean>(false);
-
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const {
@@ -44,14 +41,9 @@ const LoginForm = () => {
   });
 
   const loginHandler = async (data: LoginFormData) => {
-    const result = await authService.LoginUser(data);
-    if (result.isSuccess) {
-      const token = result.Data.token;
-      login(token);
-      toast.success(LoginSuccess);
+    const response = await dispatch(login(data));
+    if(response.payload){
       navigate(ROUTES.Dashboard);
-    } else {
-      toast.error(result.Message);
     }
   };
 

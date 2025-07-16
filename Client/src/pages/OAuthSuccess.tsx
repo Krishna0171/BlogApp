@@ -1,22 +1,23 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 import Loading from "../components/Loading";
 import { ROUTES } from "../constants/Routes";
+import { useAppDispatch } from "../hooks";
+import { initializeAuth } from "../store/slices/authSlice";
+import { setToken } from "../utils/jwtUtils";
 
 const OAuthSuccess = () => {
+  const dispatch = useAppDispatch();
   const [params] = useSearchParams();
-  const { login } = useAuth(); // your context method
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = params.get("token");
     if (token) {
-      login(token);
-      navigate(ROUTES.Dashboard);
-    } else {
-      navigate(ROUTES.Dashboard);
+      setToken(token);
+      dispatch(initializeAuth());
     }
+    navigate(ROUTES.Dashboard);
   }, []);
 
   return <Loading />;

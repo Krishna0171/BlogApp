@@ -13,7 +13,7 @@ export const RegisterUser = async (data: RegisterFormData) => {
   return successResult(res);
 };
 
-export const LoginUser = async (data: LoginFormData) => {
+export const loginUser = async (data: LoginFormData) => {
   const [res, error] = await safeRequest(api.post(API_ROUTES.Login, data));
   if (error) {
     return errorResult(error);

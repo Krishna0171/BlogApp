@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, type ReactNode } from "react";
-import { useAuth } from "../hooks/useAuth";
 import { ROUTES } from "../constants/Routes";
 import Loading from "./Loading";
+import { useAppSelector } from "../hooks";
+import type { RootState } from "../store";
 
 type Props = {
   children: ReactNode;
@@ -10,7 +11,7 @@ type Props = {
 };
 
 const ProtectedRoute = ({ children, allowedRoles }: Props) => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAppSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {

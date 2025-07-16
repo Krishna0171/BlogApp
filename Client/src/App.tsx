@@ -1,5 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/auth/Register";
 import Dashboard from "./pages/Dashboard";
@@ -18,12 +17,20 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import Loading from "./components/Loading";
 import { useEffect } from "react";
 import SessionManager from "./pages/SessionManager";
+import { useAppDispatch, useAppSelector, useSocket } from "./hooks";
+import type { RootState } from "./store";
+import { initializeAuth, logout } from "./store/slices/authSlice";
+import { toast } from "react-toastify";
 
 const App = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { loading, isAuthenticated } = useAppSelector(
+    (state: RootState) => state.auth
+  );
+  const dispatch = useAppDispatch();
 
-  useEffect(() => {}, [loading]);
-
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, []);
   if (loading) {
     return <Loading />;
   }

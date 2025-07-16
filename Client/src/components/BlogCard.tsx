@@ -25,9 +25,10 @@ import type { Blog } from "../types/blog";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/Routes";
 import { useShare } from "../hooks/useShare";
-import { useAuth } from "../hooks/useAuth";
 import * as postService from "../services/blogService";
 import { ADMIN } from "../constants/Constants";
+import type { RootState } from "../store";
+import { useAppSelector } from "../hooks";
 
 type Props = {
   expand: boolean;
@@ -59,7 +60,7 @@ const BlogCard = ({
 
   const navigate = useNavigate();
   const { share } = useShare();
-  const { user } = useAuth();
+  const user = useAppSelector((state: RootState) => state.auth.user);
 
   const handleOpenAction = (e: React.MouseEvent<HTMLElement>) => {
     setAnchorElAction(e.currentTarget);

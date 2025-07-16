@@ -87,6 +87,7 @@ const RegisterForm = () => {
           helperText={errors.password?.message}
         />
         <PasswordInput
+        label={"Confirm Password"}
           fullWidth
           margin="normal"
           {...register("confirmPassword")}

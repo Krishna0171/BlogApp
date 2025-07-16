@@ -3,14 +3,15 @@ import { useEffect, useState } from "react";
 import { Container, Typography } from "@mui/material";
 import * as sessionService from "../services/sessionService";
 import SessionCard from "../components/SessionCard";
-import { type Session } from "../types/Session";
-import { useAuth } from "../hooks/useAuth";
+import { type Session } from "../types/session";
 import { confirmDialog } from "../utils/sweetAlert";
 import { useSocket } from "../hooks/useSocket";
+import type { RootState } from "../store";
+import { useAppSelector } from "../hooks";
 
 const SessionManager = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const { user } = useAuth();
+  const user = useAppSelector((state: RootState) => state.auth.user);
   const { on, off } = useSocket();
 
   const loadSessions = async () => {

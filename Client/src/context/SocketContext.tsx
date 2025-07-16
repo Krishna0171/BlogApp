@@ -5,9 +5,13 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
+import type { RootState } from "../store";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { logout } from "../store/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../constants/Routes";
 
 interface SocketContextType {
   on: (event: string, callback: (data: any) => void) => void;
@@ -20,8 +24,10 @@ export const SocketContext = createContext<SocketContextType | undefined>(
 );
 
 const SocketProvider = ({ children }: { children: ReactNode }) => {
-  const { user, logout } = useAuth();
+  const user = useAppSelector((state: RootState) => state.auth.user);
   const socketRef = useRef<Socket | null>(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const setupSocket = useCallback(() => {
     const socket = io(import.meta.env.VITE_API_URL, {
@@ -38,8 +44,11 @@ const SocketProvider = ({ children }: { children: ReactNode }) => {
         role: user?.role,
       });
 
-      socket.on("force-logout", () => {
-        logout();
+      socket.on("force-logout", async () => {
+        const res = await dispatch(logout());
+        if (res.payload) {
+          navigate(ROUTES.Login);
+        }
         toast.info("You are logged out by another user!");
       });
     });
@@ -48,7 +57,7 @@ const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, [user, logout]);
 
   useEffect(() => {
-    if(!user) return;
+    if (!user) return;
     setupSocket();
 
     return () => {

@@ -1,7 +1,5 @@
 import axios from "axios";
 import { getToken, setToken } from "../utils/jwtUtils";
-import { toast } from "react-toastify";
-
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
   withCredentials: true,
