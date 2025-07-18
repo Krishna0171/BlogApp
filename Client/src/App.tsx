@@ -27,10 +27,27 @@ const App = () => {
     (state: RootState) => state.auth
   );
   const dispatch = useAppDispatch();
+  const { isReady, on, off } = useSocket();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(initializeAuth());
   }, []);
+
+  useEffect(() => {
+    on("force-logout", async () => {
+      const res = await dispatch(logout());
+      if (res.payload) {
+        navigate(ROUTES.Login);
+        toast.info("You are logged out by another user!");
+      }
+    });
+
+    return () => {
+      off("force-logout");
+    };
+  }, [isReady]);
+
   if (loading) {
     return <Loading />;
   }

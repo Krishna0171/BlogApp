@@ -18,6 +18,7 @@ import { ROUTES } from "../constants/Routes";
 import type { RootState } from "../store";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { logout } from "../store/slices/authSlice";
+import MouseTracker from "./MouseTracker";
 
 const pages = [
   { name: "Blogs", link: ROUTES.Dashboard },
@@ -156,6 +157,15 @@ function Navbar() {
                 </Button>
               </Link>
             ))}
+          </Box>
+          <Box marginRight={2}>
+            <MouseTracker>
+              {({ x, y }) => (
+                <h2>
+                  Mouse position: {x}, {y}
+                </h2>
+              )}
+            </MouseTracker>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">

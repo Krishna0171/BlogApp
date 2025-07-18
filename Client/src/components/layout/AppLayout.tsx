@@ -1,4 +1,4 @@
-import { Box, AppBar, Toolbar, Typography, Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Navbar";
 

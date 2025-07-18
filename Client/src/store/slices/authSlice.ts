@@ -21,8 +21,8 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
-  logoutTimeoutRef: number | null;
-  refreshTokenTimeoutRef: number | null;
+  logoutTimeoutRef: ReturnType<typeof setTimeout> | null;
+  refreshTokenTimeoutRef: ReturnType<typeof setTimeout> | null;
 }
 
 const initialState: AuthState = {
@@ -41,8 +41,10 @@ export const initializeAuth = createAsyncThunk(
 
     if (tokenValid) {
       const user = getUserFromToken();
-      dispatch(scheduleRefreshToken());
-      return user;
+      if (user) {
+        dispatch(scheduleRefreshToken());
+        return user;
+      }
     }
 
     // 🔁 Token expired, try refresh

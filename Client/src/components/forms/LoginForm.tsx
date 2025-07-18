@@ -22,7 +22,7 @@ import { useAppDispatch } from "../../hooks";
 import { login } from "../../store/slices/authSlice";
 
 const schema = yup.object({
-  email: yup.string().email(InvalidEmailFormat).required(Required("Email")),
+  email: yup.string().required(Required("Email")),
   password: yup.string().required(Required("Password")),
   rememberMe: yup.boolean().default(false),
 });
@@ -52,6 +52,7 @@ const LoginForm = () => {
       <form onSubmit={handleSubmit(loginHandler)}>
         <TextField
           label="Email"
+          placeholder="email"
           margin="normal"
           fullWidth
           {...register("email")}
@@ -60,6 +61,7 @@ const LoginForm = () => {
         />
         <PasswordInput
           fullWidth
+          placeholder="password"
           margin="normal"
           {...register("password")}
           error={!!errors.password}
@@ -76,13 +78,6 @@ const LoginForm = () => {
             label="Remember me"
             {...register("rememberMe")}
           />
-
-          {/* <Link
-            to={ROUTES.ForgotPassword}
-            className="hover:underline text-blue-500 hover:text-blue-800 tracking-wider"
-          >
-            Forgot Password?
-          </Link> */}
           <Button
             onClick={() => setShowForgotDialog(true)}
             className="hover:underline text-blue-500 hover:text-blue-800 tracking-wider"

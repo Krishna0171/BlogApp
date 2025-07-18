@@ -12,7 +12,7 @@ import { useAppSelector } from "../hooks";
 const SessionManager = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const user = useAppSelector((state: RootState) => state.auth.user);
-  const { on, off } = useSocket();
+  const { isReady, on, off } = useSocket();
 
   const loadSessions = async () => {
     const result = await sessionService.getAllSessions();
@@ -42,7 +42,7 @@ const SessionManager = () => {
     return () => {
       off("session-changed");
     };
-  }, [user]);
+  }, [isReady]);
 
   const currentSessionId = user?.sessionId;
 

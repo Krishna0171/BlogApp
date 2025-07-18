@@ -62,8 +62,10 @@ io.on("connection", (socket) => {
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import { apiRateLimiter } from "./middlewares/rateLimiter.middleware.js";
 
 //Use rotes
+app.use("/api", apiRateLimiter)
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);

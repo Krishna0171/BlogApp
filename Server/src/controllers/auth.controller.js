@@ -262,7 +262,7 @@ export const forceLogout = async (req, res) => {
   return res.sendStatus(200);
 };
 
-//Logut All
+//Logout All
 export const logoutAll = async (req, res) => {
   const user = req.user;
   const sessions = await sessionService.deleteAllUserSessions(user.id);

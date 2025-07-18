@@ -1,5 +1,4 @@
 import { io, type Socket } from "socket.io-client";
-import { useAppDispatch } from "../hooks";
 
 interface UserDetails {
   sessionId: string;
@@ -17,7 +16,6 @@ export const initSocket = (user: UserDetails): Socket => {
       reconnection: true,
       reconnectionAttempts: 5,
     });
-
     socket.on("connect", () => {
       socket?.emit("register", {
         sessionId: user.sessionId,

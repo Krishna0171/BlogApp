@@ -138,7 +138,9 @@ const BlogCard = ({
         component="img"
         height="200"
         image={
-          "https://img.freepik.com/free-photo/online-message-blog-chat-communication-envelop-graphic-icon-concept_53876-139717.jpg?semt=ais_hybrid&w=740"
+          blog.imageUrl
+            ? import.meta.env.VITE_API_URL + blog.imageUrl
+            : "https://img.freepik.com/free-photo/online-message-blog-chat-communication-envelop-graphic-icon-concept_53876-139717.jpg?semt=ais_hybrid&w=740"
         }
         alt="Blog image"
       />

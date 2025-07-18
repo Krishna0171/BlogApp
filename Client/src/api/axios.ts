@@ -1,7 +1,7 @@
 import axios from "axios";
-import { getToken, setToken } from "../utils/jwtUtils";
+import { getToken } from "../utils/jwtUtils";
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: process.env.NODE_ENV === 'test' ? '/api' : "http://localhost:5000/api",
   withCredentials: true,
 });
 
@@ -25,6 +25,5 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
 
 export default api;
